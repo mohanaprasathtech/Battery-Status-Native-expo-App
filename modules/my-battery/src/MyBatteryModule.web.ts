@@ -15,6 +15,10 @@ class MyBatteryModule extends NativeModule<MyBatteryModuleEvents> {
     return -1;
   }
 
+  isPluggedIn(): boolean {
+    return false;
+  }
+
   async setValueAsync(value: string): Promise<void> {
     this.emit('onChange', { value });
   }

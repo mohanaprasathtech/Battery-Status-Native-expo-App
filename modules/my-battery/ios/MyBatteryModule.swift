@@ -13,6 +13,16 @@ public class MyBatteryModule: Module {
       return level < 0 ? -1 : Int((level * 100).rounded())
     }
 
+    Function("isPluggedIn") { () -> Bool in
+      UIDevice.current.isBatteryMonitoringEnabled = true
+      switch UIDevice.current.batteryState {
+      case .charging, .full:
+        return true
+      default:
+        return false
+      }
+    }
+
     Events("onChange")
 
     Constant("PI") {

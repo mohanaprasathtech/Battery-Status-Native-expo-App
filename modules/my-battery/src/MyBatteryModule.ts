@@ -8,6 +8,7 @@ declare class MyBatteryModule extends NativeModule<MyBatteryModuleEvents> {
   hello(): string;
   setValueAsync(value: string): Promise<void>;
   getBatteryLevel(): number;
+  isPluggedIn(): boolean;
   MyBatteryModuleSharedObject: typeof MyBatteryModuleSharedObject;
 }
 

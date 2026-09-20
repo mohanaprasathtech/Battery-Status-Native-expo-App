@@ -7,6 +7,8 @@ import expo.modules.kotlin.records.recordFromMap
 import expo.modules.ui.ModifierRegistry
 import android.os.BatteryManager
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 
 class MyBatteryModule : Module() {
 
@@ -18,6 +20,14 @@ class MyBatteryModule : Module() {
     Function("getBatteryLevel") {
       val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
       return@Function batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+    }
+
+    Function("isPluggedIn") {
+      // ACTION_BATTERY_CHANGED is a sticky broadcast: passing a null receiver
+      // returns the last broadcast Intent immediately instead of registering.
+      val status = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+      val plugged = status?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+      return@Function plugged != 0
     }
 
     Events("onChange")
