@@ -21,42 +21,8 @@ does not play `.mov` files inline, which is why the GIF above exists)*
 
 ---
 
-## What the app does
 
-One screen, split exactly in half:
 
-```
-┌────────────────────────────┐
-│                            │
-│      ┌──────────────┐      │
-│      │████████░░░░░ │▐     │  ← top 50%: animated battery
-│      └──────────────┘      │     fill slides · ⚡ pulses when charging
-│                            │
-├────────────────────────────┤
-│  ┌──────────────────────┐  │
-│  │   BATTERY LEVEL      │  │
-│  │        87%           │  │  ← bottom 50%: live readings
-│  └──────────────────────┘  │
-│  ┌──────────────────────┐  │
-│  │   BATTERY STATUS     │  │
-│  │     Plugged in       │  │
-│  └──────────────────────┘  │
-└────────────────────────────┘
-```
-
-| Behaviour | Detail |
-|---|---|
-| Fill animation | `withTiming`, 900 ms, eased — the bar glides instead of jumping |
-| Charging bolt | Appears only when plugged in, breathes on an infinite `withRepeat` loop |
-| Low-battery pulse | Under 20 % and unplugged, the fill pulses to draw the eye |
-| Colour by level | 🔴 ≤ 20 % · 🟠 ≤ 50 % · 🟢 above |
-| Live updates | Polls the native module every 2 s, plus an extra read whenever the app returns to the foreground |
-| Dark mode | Follows the system theme automatically |
-| Unknown state | Shows `—` / `Unknown` where the platform can't report (web, iOS Simulator) |
-
-Built with plain `View`s and `react-native-reanimated` — **no SVG or charting library**.
-
----
 
 ## The native module
 
@@ -95,52 +61,6 @@ src/app/index.tsx
 The string in `requireNativeModule()` **must match** `Name(...)` in both native files. That is the
 entire binding — everything else is ordinary code.
 
-> The module also still carries the scaffolding `create-expo-module` generates — `hello()`,
-> `setValueAsync()`, an `onChange` event, a shared object, and example views for SwiftUI and
-> Jetpack Compose. None of it is used by the app; it is left in as a reference.
-
----
-
-## Project structure
-
-```
-NativeBatteryDemo/
-├── src/
-│   ├── app/                      # screens — file name = route (Expo Router)
-│   │   ├── _layout.tsx           #   wrapper: theme provider, splash, tab bar
-│   │   └── index.tsx             #   the battery screen ("/")
-│   ├── components/
-│   │   ├── battery-gauge.tsx     #   the animated battery
-│   │   ├── themed-text.tsx       #   text that follows light/dark mode
-│   │   ├── themed-view.tsx       #   box that follows light/dark mode
-│   │   ├── app-tabs.tsx          #   bottom tab bar   (.web.tsx = browser version)
-│   │   ├── animated-icon.tsx     #   splash animation (.web.tsx = browser version)
-│   │   └── external-link.tsx
-│   ├── hooks/
-│   │   ├── use-battery.ts        #   polls the native module
-│   │   ├── use-theme.ts          #   resolves the active colour set
-│   │   └── use-color-scheme.ts   #   (.web.ts = browser version)
-│   ├── constants/theme.ts        # colours, spacing, fonts — single source of truth
-│   └── global.css                # web-only styling
-│
-├── modules/my-battery/           # the custom native module
-│   ├── expo-module.config.json   #   tells Expo which native classes to link
-│   ├── src/                      #   TypeScript side
-│   ├── ios/                      #   Swift side
-│   └── android/                  #   Kotlin side
-│
-├── assets/images/                # icons, splash, tab icons
-├── docs/                         # demo.gif + demo.mov
-├── app.json                      # app name, icons, splash, plugins
-├── package.json                  # dependencies + scripts
-└── tsconfig.json                 # strict mode, "@/*" → "./src/*"
-```
-
-**File naming conventions used throughout:**
-
-- `_layout.tsx` — a wrapper, not a screen (the leading `_` excludes it from routing)
-- `*.web.tsx` / `*.web.ts` — automatically used instead of the base file when running in a browser
-- `@2x` / `@3x` images — higher-density variants, picked automatically by the bundler
 
 ---
 
@@ -208,13 +128,6 @@ the exact name Expo's own `expo-battery` package registers. When that happens, E
 hands you *its* module instead of yours, and the failure looks like a missing function rather
 than a naming conflict. It was renamed to `MyBattery` (and the Android package to
 `expo.modules.mybattery`, which also collided) to avoid this.
-
-**Useful debugging one-liner.** When a native module misbehaves, print what you are actually
-talking to:
-
-```ts
-console.log(Object.keys(MyBatteryModule));
-```
 
 ---
 
